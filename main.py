@@ -3,7 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import FastAPI, HTTPException, Depends, Header, Query
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import SQLModel, Field, create_engine, Session, select
+from sqlmodel import SQLModel, create_engine
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime, timedelta, timezone
@@ -14,14 +14,16 @@ import csv
 # ---------------------
 # CONFIGURATION
 # ---------------------
-DATABASE_URL = "postgresql://postgres:postgres@db:5432/housing"
-engine = create_engine(DATABASE_URL, echo=True)
+# database URL and engine (replace existing DATABASE_URL / engine lines with this)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./housing_payments.db")
 
+# only set check_same_thread for sqlite (not for Postgres)
 if DATABASE_URL.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
-    engine = create_engine(DATABASE_URL, echo=False, connect_args=connect_args)
 else:
-    engine = create_engine(DATABASE_URL, echo=False)
+    connect_args = {}
+
+engine = create_engine(DATABASE_URL, echo=False, connect_args=connect_args)
 
 ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "secretadmintoken")
 
